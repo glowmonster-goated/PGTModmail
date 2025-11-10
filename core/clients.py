@@ -2,6 +2,7 @@ import secrets
 import sys
 from json import JSONDecodeError
 from typing import Any, Dict, Union, Optional
+from urllib.parse import urlparse
 
 import discord
 from discord import Member, DMChannel, TextChannel, Message
@@ -447,6 +448,20 @@ class MongoDBClient(ApiClient):
                 logger.critical("A Mongo URI is necessary for the bot to function.")
                 raise RuntimeError
 
+        host_hint: Optional[str] = None
+        default_db: Optional[str] = None
+        try:
+            parsed = urlparse(mongo_uri)
+        except Exception:  # pragma: no cover - only defensive logging context
+            parsed = None
+
+        if parsed is not None:
+            netloc = parsed.netloc
+            if "@" in netloc:
+                netloc = netloc.split("@", 1)[1]
+            host_hint = netloc.split(",")[0]
+            default_db = parsed.path.lstrip("/") or None
+
         try:
             db = AsyncIOMotorClient(mongo_uri).modmail_bot
         except ConfigurationError as e:
@@ -455,6 +470,29 @@ class MongoDBClient(ApiClient):
                 "Otherwise noted in the following message:\n%s",
                 e,
             )
+            if "The DNS query name does not exist" in str(e):
+                logger.critical(
+                    "MongoDB Atlas SRV records could not be resolved. "
+                    "Ensure you copied the full connection string host exactly as shown in Atlas (for example `cluster0.xxxxx.mongodb.net`) and that the cluster allows public network access."
+                )
+                logger.critical(
+                    "If you renamed the host or replaced it with your database name, update CONNECTION_URI with the original Atlas hostname and redeploy."
+                )
+                if host_hint:
+                    logger.critical("Current CONNECTION_URI host: %s", host_hint)
+                    if host_hint.endswith("mongodb.net"):
+                        prefix = host_hint.split(".", 1)[0]
+                        if default_db and prefix.lower() == default_db.lower():
+                            logger.critical(
+                                "It looks like the host was changed to match the database name '%s'. "
+                                "Atlas SRV hosts normally stay as something like 'cluster0'. Please restore the original host name from the Atlas connection string dialog.",
+                                default_db,
+                            )
+                        elif not prefix.lower().startswith("cluster"):
+                            logger.critical(
+                                "Atlas SRV hosts typically start with 'cluster' (for example 'cluster0'). If you edited the host to '%s', copy the URI from Atlas again without modifications.",
+                                prefix,
+                            )
             sys.exit(0)
 
         super().__init__(bot, db)

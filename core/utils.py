@@ -4,7 +4,16 @@ import re
 import typing
 from datetime import datetime, timezone
 from difflib import get_close_matches
-from distutils.util import strtobool as _stb  # pylint: disable=import-error
+try:  # pragma: no cover - compatibility shim
+    from distutils.util import strtobool as _stb  # pylint: disable=import-error
+except ModuleNotFoundError:  # Python 3.12 removed distutils
+    def _stb(val: str) -> int:
+        val = val.lower()
+        if val in {"y", "yes", "t", "true", "on", "1"}:
+            return 1
+        if val in {"n", "no", "f", "false", "off", "0"}:
+            return 0
+        raise ValueError(f"invalid truth value {val!r}")
 from itertools import takewhile, zip_longest
 from urllib import parse
 
