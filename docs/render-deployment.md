@@ -60,4 +60,4 @@ If deployment still fails, download the deploy logs from Render and look for sta
 
 ### MongoDB DNS errors on Render
 
-If the logs show `ConfigurationError: The DNS query name does not exist`, Render cannot resolve the hostname inside your `CONNECTION_URI`. Copy the Atlas connection string again and ensure the host still looks like `cluster0.xxxxx.mongodb.net`. Do not replace the host with your database name. After updating the secret Render will redeploy automatically.
+If the logs show `ConfigurationError: The DNS query name does not exist`, Render cannot resolve the hostname inside your `CONNECTION_URI`. Copy the Atlas connection string again and ensure the host still looks like `cluster0.xxxxx.mongodb.net`. Do not replace the host with your database name (for example changing it to `pgtmodmail.xxxxx.mongodb.net`) or any other custom word—Atlas SRV records rely on the original host name. After updating the secret Render will redeploy automatically.
