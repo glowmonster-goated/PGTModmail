@@ -455,6 +455,14 @@ class MongoDBClient(ApiClient):
                 "Otherwise noted in the following message:\n%s",
                 e,
             )
+            if "The DNS query name does not exist" in str(e):
+                logger.critical(
+                    "MongoDB Atlas SRV records could not be resolved. "
+                    "Ensure you copied the full connection string host exactly as shown in Atlas (for example `cluster0.xxxxx.mongodb.net`) and that the cluster allows public network access."
+                )
+                logger.critical(
+                    "If you renamed the host or replaced it with your database name, update CONNECTION_URI with the original Atlas hostname and redeploy."
+                )
             sys.exit(0)
 
         super().__init__(bot, db)
