@@ -90,6 +90,10 @@ There are a number of options for hosting your very own dedicated Modmail bot.
 
 Visit our [**documentation**](https://docs.modmail.dev/installation) page for detailed guidance on how to deploy your Modmail bot.
 
+### Render deployment
+
+Hosting on [Render](https://render.com)? Check the bundled [Render deployment guide](docs/render-deployment.md) for a step-by-step walkthrough. It explains how to use the `render.yaml` blueprint, which start command to configure, and which environment variables (`TOKEN`, `GUILD_ID`, `OWNERS`, `CONNECTION_URI`, and `LOG_URL`) must be set so the bot comes online when Render runs the service.
+
 ### Patreon Hosting
 
 If you don't want the trouble of renting and configuring your server to host Modmail, we got a solution for you! We offer hosting and maintenance of your own, private Modmail bot (including a Logviewer) through [**Patreon**](https://patreon.com/kyber).

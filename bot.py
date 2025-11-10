@@ -12,6 +12,7 @@ import struct
 import sys
 import platform
 import typing
+import types
 from datetime import datetime, timezone, timedelta
 from subprocess import PIPE
 from types import SimpleNamespace
@@ -23,6 +24,26 @@ from discord.ext import commands, tasks
 from discord.ext.commands.view import StringView
 from emoji import is_emoji
 from packaging.version import Version
+
+
+try:  # pragma: no cover - compatibility shim for Python 3.12+
+    import distutils.util  # type: ignore
+except ModuleNotFoundError:
+    distutils_module = types.ModuleType("distutils")
+    util_module = types.ModuleType("distutils.util")
+
+    def _strtobool(val: str) -> int:
+        lowered = val.lower()
+        if lowered in {"y", "yes", "t", "true", "on", "1"}:
+            return 1
+        if lowered in {"n", "no", "f", "false", "off", "0"}:
+            return 0
+        raise ValueError(f"invalid truth value {val!r}")
+
+    util_module.strtobool = _strtobool  # type: ignore[attr-defined]
+    distutils_module.util = util_module  # type: ignore[attr-defined]
+    sys.modules.setdefault("distutils", distutils_module)
+    sys.modules.setdefault("distutils.util", util_module)
 
 
 try:

@@ -1,0 +1,25 @@
+services:
+  - type: worker
+    name: modmail-bot
+    env: docker
+    plan: starter
+    autoDeploy: true
+    dockerfilePath: Dockerfile
+    startCommand: "python bot.py"
+    envVars:
+      - key: TOKEN
+        sync: false
+      - key: GUILD_ID
+        sync: false
+      - key: OWNERS
+        sync: false
+      - key: CONNECTION_URI
+        sync: false
+      - key: LOG_URL
+        sync: false
+      - key: DATABASE_TYPE
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: REGISTRY_PLUGINS_ONLY
+        sync: false
